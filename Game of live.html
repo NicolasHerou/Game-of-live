@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ <meta charset="ISO-8859-1"/>
+ <style>
+ td { 
+	width: 20px; height: 20px;
+	border: 1px solid black; background-color: white; 
+	}
+	td.vivant { 
+		background-color : blue;
+		}
+ </style>
+ <script>
+	var longeur;
+	var largeur;
+	var table = new Array();
+	var temps;
+	function init(){
+		largeur = prompt("Set the number of culum", 20);
+		longeur = prompt("Set the number of lines", 20);
+		
+		remplir();
+	}
+	function remplir(){
+		var x;
+		var y;
+		var Ligne
+		for(i = 0; i < longeur; i++){
+		   Ligne = new Array();
+		   x = document.createElement("TR");
+           document.getElementById("plateau").appendChild(x);
+		   for(j = 0; j < largeur; j++){
+                y = document.createElement("TD");
+				y.setAttribute("id",(i*longeur)+j);
+				y.setAttribute("onclick", "clic(" + i + ", " + j +")");
+                x.appendChild(y);
+				Ligne.push(plateau.children[i].children[j]);
+			}
+			table.push(Ligne);
+		}
+	}
+	function clic(i, j){
+		if (table[i][j].className == "vivant"){
+			table[i][j].className = "td";
+		}else{
+			table[i][j].className = "vivant";	
+		}	
+	}
+	function Avancer(){
+		var nbEnVie = 0;
+		var i;
+		var j;
+		majTab();
+		for(i = 0; i < longeur; i++){
+		    for(j = 0; j < largeur; j++){
+				nbEnVie = calculNbEnvie(i, j); 
+				table[i][j].className = verification(i, j, nbEnVie);
+			}
+		}
+	}
+	function calculNbEnvie(i, j){
+		var nbEnVie = 0;
+		var nb;
+		nb = droite(i, j);
+		nbEnVie += nb;
+		nb = gauche(i, j);
+		nbEnVie += nb;
+		nb = haut(i, j);
+		nbEnVie += nb;
+		nb = bas(i, j);	
+		nbEnVie += nb;
+		return nbEnVie;		
+	}
+	function monstreDeFrankenstein(i, j){
+		if(table[i][j].etat == "vivant"){
+				return 1;
+		}
+		return 0;
+	}
+	function droite(i, j){
+		if((j + 1) != largeur){
+			return monstreDeFrankenstein(i, j + 1);
+		}
+		return 0;
+	}
+	function gauche(i, j){
+		if((j) !=0){
+			return monstreDeFrankenstein(i, j - 1);
+		}
+		return 0;
+	}
+	function haut(i, j){
+		var nombreEnvie = 0;
+		var nb;
+		if(i != 0){
+			nb = monstreDeFrankenstein(i - 1, j);
+			nombreEnvie += nb;
+			nb = droite(i - 1, j);
+			nombreEnvie += nb;
+			nb = gauche(i - 1, j);
+			nombreEnvie += nb;
+		}
+		return nombreEnvie;
+	}
+	
+	function bas(i, j){
+		var nombreEnvie = 0;
+		var nb;
+		if(i != longeur - 1){
+			nb = monstreDeFrankenstein(i + 1, j);
+			nombreEnvie += nb;
+			nb = droite(i + 1, j);
+			nombreEnvie += nb;
+			nb = gauche(i + 1, j);
+			nombreEnvie += nb;
+		}
+		return nombreEnvie;
+	}	
+	function verification(i, j, nbEnVie){
+		if(table[i][j].etat  == "morte"){//morte
+			if (nbEnVie == 3){
+				return "vivant";
+			}
+		}else{
+			if (nbEnVie == 2 || nbEnVie == 3){
+				return  "vivant";
+			}
+		}
+		return "td";
+	}
+	function majTab(){
+		for(i = 0; i < longeur; i++){
+		    for(j = 0; j < largeur; j++){
+                if(table[i][j].className == "vivant"){
+					table[i][j].etat = "vivant";
+				}else{
+					table[i][j].etat = "morte";
+				}   
+			}
+		}
+	}
+	function Stop(){
+		clearInterval(temps);
+		document.getElementById("bContinu").disabled=false;
+		document.getElementById("bStop").disabled=true;
+	}
+	function Continu(){
+		temps = setInterval( Avancer, 50);
+		document.getElementById("bContinu").disabled=true;
+		document.getElementById("bStop").disabled=false;
+	}
+	function Random(){
+		for(i = 0; i < longeur; i++){
+		    for(j = 0; j < largeur; j++){				
+				table[i][j].className = Math.floor(Math.random()* 2) == 0? "vivant": "morte";
+			}
+		}
+	}
+	
+	window.onload = init;
+ </script>
+ </head>
+ <body>
+ <p>
+ <button id="bAvancer" onclick = "Avancer()">One step</button>
+ <button id="bContinu" onclick = "Continu()">PLay</button>
+ <button id="bStop" disabled="true" onclick = "Stop()">Stop</button>
+ <button id="bRandom" onclick = "Random()">Random</button>
+ </p>
+ <table id="plateau"></table>
+ </body>
+</html>
